@@ -124,7 +124,7 @@ public abstract  class AbstractCommonSender {
     private static String PRIFX_NAME = "sendBy";
 
 
-    /**发送请求并重试
+    /**发送请求
       *@author jiajun_chen palading_cr@163.com
       *@date 2018/7/8
       *
@@ -134,27 +134,7 @@ public abstract  class AbstractCommonSender {
         try {
              t = sendByPost(url,data,clazz);
         } catch (Exception e) {
-            if(e instanceof SocketException){
-                boolean response = false;
-                String name = Thread.currentThread().getStackTrace()[1].getMethodName();
-                Method method = CACHE_METHOD.get(name);
-                int rerty = method.getAnnotation(Retry.class).retry();
-                for(int i= 0;i<rerty;i++){
-                    try {
-                        t = sendByPost(url,data,clazz);
-                        if(!(t instanceof Exception)){
-                            response = true;
-                            return t;
-                        }
-                    } catch (Exception e1) {
-                        if(e instanceof SocketException){
-                            continue;
-                        }
-                    }
-                }
-                if(!response){
-                    return null;
-                }
+           
             }
         }
         return t;
@@ -165,7 +145,6 @@ public abstract  class AbstractCommonSender {
       *@date 2018/7/8
       *
       */
-    @Retry(retry = 3)
     public <T> T sendByPost(String url,T data,Class<T> clazz)throws Exception{
         return restTemplate.postForObject(url,data,clazz);
     }
@@ -175,7 +154,6 @@ public abstract  class AbstractCommonSender {
       *@date 2018/7/8
       *
       */
-    @Retry(retry = 4)
     public <T> T sendByGet(String url,Class<T> clazz)throws Exception{
         return restTemplate.getForObject(url,clazz);
     }
